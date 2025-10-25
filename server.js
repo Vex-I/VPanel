@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import blogRoutes from './routes/blogRoutes.js';
 import path from 'path';
+import { swaggerUi, specs } from './swagger.js';
 
 dotenv.config();
 
@@ -13,16 +14,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
-// Test route
-app.get('/', (req, res) => {
-  res.send('Server is running 🚀');
-});
+// Swagger doc route
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 console.log("🔍 MONGO_URI:", process.env.MONGO_URI?.replace(/:.+@/, ":<hidden>@"));
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ MongoDB connected'))
-  .catch((err) => console.error('❌ MongoDB connection error:', err));
+  .then(() => console.log('MongoDB connected'))
+  .catch((err) => console.error('MongoDB connection error:', err));
 
 // Start server
 const PORT = process.env.PORT || 5000;

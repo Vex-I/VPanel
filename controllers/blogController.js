@@ -24,7 +24,6 @@ export const getBlogById = async (req, res) => {
 
 export const createBlog = async (req, res) => {
     try {
-        
         const image = req.files?.image ? req.files.image[0].path : null;
         const markdown = req.files?.markdown ? req.files.markdown[0].path : null;
 
