@@ -2,26 +2,24 @@ import Content from "../models/content.js";
 import multer from "multer";
 
 
-export const getAllContent = async (req, res) => {
+export const getContent = async (req, res) => {
     try {
-        const contents = await Content
-            .find({type: req.params.type})
-            .sort({ createdAt: -1 });
-        res.status(200).json(contents);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching projects", error });
-    }
-}
+        const {tags, slug, type, } = req.query
+        if(slug) {
+            const content = await Content.find({slug: slug})
+            res.status(200).json(content)
+        } else {
+            const filter = {}
+            if(tags) {
+                const tagArray = Array.isArray(tags) ? tags : [tags];
+                filter['tags.name' ] = { $in: tagArray };
+            }
+            if (type) filter.type = type;
 
-
-export const getContentBySlug = async (req, res) => {
-    try {
-        const slug = req.params.slug;
-        const content = await Content.findOne({slug: slug});
-        if (!content) {
-            return res.status(404).json({ message: "Entry not found" });
+            const content = await Content.find(filter);
+            res.status(200).json(content);
         }
-        return res.status(200).json(content);
+
     } catch (error) {
         res.status(500).json({ message: "Error fetching content", error });
     }

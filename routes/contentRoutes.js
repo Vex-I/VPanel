@@ -1,8 +1,7 @@
 import express from 'express';
 import {
-    getAllContent,
     createContent,
-    getContentBySlug,
+    getContent,
     updateContent,
     deleteContent
 } from '../controllers/contentController.js';
@@ -15,45 +14,32 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/content:
- *   get:
- *     summary: Retrieve a list of content 
- *     tags: 
- *       - Content
- *     parameters:
- *       -in: path
- *       name: type
- *       required: false
- *       schema:
- *         type: string
- *       description: The content type.
- *     responses:
- *       200:
- *         description: A list of all content of a type.
- */
-router.get('/content', getAllContent);
-
-/**
- * @swagger
  * /api/content/{slug}:
  *   get:
- *     summary: Retrieve a single content by it's slug 
+ *     summary: Retrieve contents that mathes the parameter
  *     tags:
  *       - Content
  *     parameters:
- *       - in: path
+ *       - in: query
  *         name: slug
- *         required: true
+ *         required: false
  *         schema:
  *           type: string
  *         description: The content slug
+ *       - in: query
+ *         name: tags
+ *         required: false
+ *         schema:
+ *           type: array
+ *           items:
+ *             type: string
  *     responses:
  *       200:
  *         description: A single content item.
  *       404:
  *         description: A content entry with the slug does not exists.
  */
-router.get('/content/:slug', getContentBySlug);
+router.get('/content', getContent);
 
 /**
  * @swagger
