@@ -47,7 +47,7 @@ router.get('/content', getContent);
  *   post:
  *     summary: Create a new content item.
  *     tags:
- *       - content
+ *       - Content
  *       - Authentication required
  *     requestBody:
  *       required: true
