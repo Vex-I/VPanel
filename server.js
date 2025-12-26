@@ -2,8 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import blogRoutes from './routes/blogRoutes.js';
-import projectRoutes from './routes/projectRoutes.js';
+import contentRoutes from './routes/contentRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import { swaggerUi, specs } from './swagger.js';
 
@@ -28,5 +27,4 @@ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 app.get('/', (req, res) => {res.send("API is running :)")})
 app.use('/api/auth', authRoutes);
-app.use('/api/', blogRoutes);
-app.use('/api/', projectRoutes);
+app.use('/api/', contentRoutes);

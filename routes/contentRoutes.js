@@ -24,7 +24,8 @@ const router = express.Router();
  *       -in: path
  *       name: type
  *       required: false
- *          schema: string
+ *       schema:
+ *         type: string
  *       description: The content type.
  *     responses:
  *       200:
@@ -101,7 +102,7 @@ router.get('/content/:slug', getContentBySlug);
  *         description: Invalid body.
  */
 router.post(
-    '/projects',
+    '/content',
     authenticate,
     upload.fields([{ name: 'markdown', maxCount: 1 }]),
     Parse,
@@ -122,7 +123,7 @@ router.post(
  *         required: true
  *         schema:
  *           type: string
- *         description: The project ID
+ *         description: The content slug
  *     requestBody:
  *       required: true
  *       content:
