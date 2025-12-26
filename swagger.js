@@ -11,7 +11,7 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:5000", // update to deployed url.
+        url: "http://localhost:5000", // update to deployed url later.
       },
     ],
   },

@@ -1,12 +1,14 @@
 import express from 'express';
 import {
-  getAllBlogs,
-  createBlog,
-  getBlogById,
-  updateBlog,
-  deleteBlog
+    getAllBlogs,
+    createBlog,
+    getBlogBySlug,
+    updateBlog,
+    deleteBlog
 } from '../controllers/blogController.js';
 import upload from '../middlewares/upload.js';
+import Parse from '../middlewares/Parse.js';
+import { authenticate } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
@@ -14,38 +16,45 @@ const router = express.Router();
  * @swagger
  * /api/blogs:
  *   get:
- *     summary: Retrieve a list of blogs
+ *     summary: Retrieve the list of created blogs.
+ *     tags:
+ *       - Blog 
  *     responses:
  *       200:
- *         description: A list of blogs
+ *         description: The full list of blogs.
  */
 router.get('/blogs', getAllBlogs);
 
 /**
  * @swagger
- * /api/blogs/{id}:
+ * /api/blogs/{slug}:
  *   get:
- *     summary: Retrieve a single blog by ID
+ *     summary: Retrieve a single blog that corresponds to the given slug.
+ *     tags:
+ *       - Blog
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: slug
  *         required: true
  *         schema:
  *           type: string
- *         description: The blog ID
+ *         description: The blog unique slug identifier.
+ *         example: my-first-blog
  *     responses:
  *       200:
  *         description: A single blog object
  *       404:
  *         description: Blog not found
  */
-router.get('/blogs/:id', getBlogById);
+router.get('/blogs/:slug', getBlogBySlug);
 
 /**
  * @swagger
  * /api/blogs:
  *   post:
- *     summary: Create a new blog
+ *     summary: Create a new blog.
+ *     tags:
+ *       - Blog
  *     requestBody:
  *       required: true
  *       content:
@@ -58,7 +67,10 @@ router.get('/blogs/:id', getBlogById);
  *               excerpt:
  *                 type: string
  *               tags:
- *                 type: string
+ *                 type: object
+ *                 properties:
+ *                   color: string
+ *                   name: string
  *               image:
  *                 type: string
  *                 format: binary
@@ -69,20 +81,19 @@ router.get('/blogs/:id', getBlogById);
  *       201:
  *         description: Blog created
  */
-router.post(
-  '/blogs',
-  upload.fields([
-    { name: 'image', maxCount: 1 },
-    { name: 'markdown', maxCount: 1 }
-  ]),
-  createBlog
-);
+router.post('/blogs',
+    authenticate,
+    upload.fields([{ name: 'markdown', maxCount: 1 }]),
+    Parse,
+    createBlog );
 
 /**
  * @swagger
  * /api/blogs/{id}:
  *   put:
  *     summary: Update an existing blog
+ *     tags:
+ *       - Blog
  *     parameters:
  *       - in: path
  *         name: id
@@ -102,7 +113,10 @@ router.post(
  *               excerpt:
  *                 type: string
  *               tags:
- *                 type: string
+ *                 type: object
+ *                 properties:
+ *                   color: string
+ *                   name: string
  *               image:
  *                 type: string
  *                 format: binary
@@ -116,12 +130,11 @@ router.post(
  *         description: Error updating blog
  */
 router.put(
-  '/blogs/:id',
-  upload.fields([
-    { name: 'image', maxCount: 1 },
-    { name: 'markdown', maxCount: 1 }
-  ]),
-  updateBlog
+    '/blogs/:id',
+    authenticate,
+    upload.fields([{ name: 'markdown', maxCount: 1 }]),
+    Parse,
+    updateBlog
 );
 
 /**
@@ -129,6 +142,8 @@ router.put(
  * /api/blogs/{id}:
  *   delete:
  *     summary: Delete a blog
+ *     tags:
+ *       - Blog
  *     parameters:
  *       - in: path
  *         name: id
