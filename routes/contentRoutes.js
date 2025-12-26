@@ -14,9 +14,9 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/content/{slug}:
+ * /api/content/{query}:
  *   get:
- *     summary: Retrieve contents that mathes the parameter
+ *     summary: Retrieve contents that matches the parameter
  *     tags:
  *       - Content
  *     parameters:
@@ -97,7 +97,7 @@ router.post(
 
 /**
  * @swagger
- * /api/content/{slug}:
+ * /api/content:
  *   put:
  *     summary: Update an existing content
  *     tags:
