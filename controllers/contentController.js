@@ -1,0 +1,82 @@
+import Content from "../models/content.js";
+import multer from "multer";
+
+
+export const getAllContent = async (req, res) => {
+    try {
+        const contents = await Content
+            .find({type: req.params.type})
+            .sort({ createdAt: -1 });
+        res.status(200).json(contents);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching projects", error });
+    }
+}
+
+
+export const getContentBySlug = async (req, res) => {
+    try {
+        const slug = req.params.slug;
+        const content = await Content.findOne({slug: slug});
+        if (!content) {
+            return res.status(404).json({ message: "Entry not found" });
+        }
+        return res.status(200).json(content);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching content", error });
+    }
+}
+
+export const createContent= async (req, res) => {
+    const {title, type, slug, excerpt, image, markdown, tags} = req.body;
+
+    try {
+        if(!title || !slug || !markdown) {
+            return res.status(400).json({ message: "Title, slug, and markdown are required", 
+                input: { title, slug, markdown}
+            });
+        }
+        const newContent = new Content({ title, type, slug, excerpt, image, markdown, tags });
+        await newContent.save();
+        res.status(201).json(newContent);
+    } catch (error) {
+        res.status(500).json({ message: "Error creating project",
+            error,
+            input: { title, slug, markdown},
+         });
+    }
+}
+
+export const updateContent = async (req, res) => {
+    const { title, type, slug, excerpt, image, markdown, tags} = req.body;
+
+    try {
+        const project = await Content.findOneAndUpdate(
+            req.params.slug,
+            { title, type, slug, excerpt, image, markdown, tags },
+            { new: true, runValidators: true }
+        );
+
+        if (!project) {
+            return res.status(404).json({ message: "Project not found" });
+        }
+        res.status(200).json(project);
+    } catch (error) {
+        res.status(500).json({ message: "Error updating project", error });
+    }
+}
+
+export const deleteContent= async (req, res) => {
+    try {
+        const project = await Content.findOneAndDelete(req.params.slug);
+
+        if (!project) {
+            return res.status(404).json({ message: "Project not found" });
+        }
+
+        res.status(200).json({ message: "Project deleted successfully" });
+
+    } catch (error) {
+        res.status(500).json({ message: "Error deleting project", error });
+    } 
+}
