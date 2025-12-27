@@ -20,13 +20,13 @@ const router = express.Router();
  *     tags:
  *       - Content
  *     parameters:
- *       - in: query
+ *       - in: path
  *         name: slug
  *         required: false
  *         schema:
  *           type: string
  *         description: The content slug
- *       - in: query
+ *       - in: path
  *         name: tags
  *         required: false
  *         schema:
@@ -49,6 +49,13 @@ router.get('/content', getContent);
  *     tags:
  *       - Content
  *       - Authentication required
+ *     parameters:
+ *       - in: header
+ *         name: authorization
+ *         required: true
+ *         schema: 
+ *           type: string
+ *         description: authorization token
  *     requestBody:
  *       required: true
  *       content:
@@ -73,8 +80,10 @@ router.get('/content', getContent);
  *               tags:
  *                 type: object
  *                 properties:
- *                   color: string
- *                   name: string
+ *                   color: 
+ *                     type: string
+ *                   name: 
+ *                     type: string
  *               image:
  *                 type: string
  *                 format: binary
@@ -104,12 +113,12 @@ router.post(
  *       - Content
  *       - Authentication required
  *     parameters:
- *       - in: path
- *         name: id
+ *       - in: header
+ *         name: authorization
  *         required: true
- *         schema:
+ *         schema: 
  *           type: string
- *         description: The content slug
+ *         description: authorization token
  *     requestBody:
  *       required: true
  *       content:
@@ -134,8 +143,10 @@ router.post(
  *               tags:
  *                 type: object
  *                 properties:
- *                   color: string
- *                   name: string
+ *                   color: 
+ *                     type: string
+ *                   name: 
+ *                     type: string
  *               image:
  *                 type: string
  *                 format: binary
@@ -168,11 +179,17 @@ router.put(
  *       - Authentication required
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: slug
  *         required: true
  *         schema:
  *           type: string
  *         description: The content slug
+ *        - in: header
+ *          name: authorization
+ *          required: true
+ *          schema:
+ *            type: string
+ *          description: authorization token
  *     responses:
  *       200:
  *         description: Content deleted
