@@ -3,7 +3,8 @@ import {
     createContent,
     getContent,
     updateContent,
-    deleteContent
+    deleteContent,
+    incrementRead,
 } from '../controllers/contentController.js';
 
 import upload from '../middlewares/upload.js';
@@ -14,7 +15,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/content/{query}:
+ * /api/content:
  *   get:
  *     summary: Retrieve contents that matches the parameter
  *     tags:
@@ -184,12 +185,12 @@ router.put(
  *         schema:
  *           type: string
  *         description: The content slug
- *        - in: header
- *          name: authorization
- *          required: true
- *          schema:
- *            type: string
- *          description: authorization token
+ *       - in: header
+ *         name: authorization
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: authorization token
  *     responses:
  *       200:
  *         description: Content deleted
@@ -199,5 +200,7 @@ router.put(
  *         description: Error deleting content
  */
 router.delete('/content/:slug', authenticate, deleteContent);
+
+router.patch('/content/:slug', incrementRead);
 
 export default router;

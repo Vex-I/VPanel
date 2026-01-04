@@ -10,12 +10,15 @@ const contentSchema = new mongoose.Schema({
     type: {type: String, required: true},
     slug: { type: String, required: true, unique: true },
     hasAPage: { type: Boolean, required: true},
-    link: {type: String, required: true},
+    link: {type: String, required: false},
     excerpt: { type: String, required: false },
     shortExcerpt: {type: String, required: false},
     image: { type:String, required: false },
-    markdown: { type: String, required: true },
+    markdown: { type: String, required: false },
+    readTime: {type: String, required: false},
     tags: [Tag],
+    //Engangement
+    reader: {type: Number},
 }, { timestamps: true });
 
 const Content= mongoose.model('Content', contentSchema);

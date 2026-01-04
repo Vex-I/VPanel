@@ -1,6 +1,4 @@
 import Content from "../models/content.js";
-import multer from "multer";
-
 
 export const getContent = async (req, res) => {
     try {
@@ -60,6 +58,20 @@ export const updateContent = async (req, res) => {
         }
         res.status(200).json(project);
     } catch (error) {
+        res.status(500).json({ message: "Error updating project", error });
+    }
+}
+
+export const incrementRead = async (req, res) => {
+    try {
+        const target = await Content.findOne(req.params.slug);
+        if(!target) {
+            return res.status(404).json({ message: "Project not found" });
+        }
+        target.reader = target.reader + 1;
+        await target.save();
+        res.status(200).json({ message: "Incremented Reader"});
+    } catch {
         res.status(500).json({ message: "Error updating project", error });
     }
 }
