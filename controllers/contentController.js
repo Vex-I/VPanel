@@ -2,7 +2,7 @@ import Content from "../models/content.js";
 
 export const getContent = async (req, res) => {
     try {
-        const {tags, slug, type, } = req.query
+        const {tags, slug, type, } = req.query;
         if(slug) {
             const content = await Content.find({slug: slug})
             res.status(200).json(content)
@@ -15,7 +15,11 @@ export const getContent = async (req, res) => {
             if (type) filter.type = type;
 
             const content = await Content.find(filter);
-            res.status(200).json(content);
+            if (content.length == 0) {
+                return res.status(404).json({message:"No content found."})
+            } else {
+                return res.status(200).json(content);
+            }
         }
 
     } catch (error) {

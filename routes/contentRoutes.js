@@ -28,6 +28,12 @@ const router = express.Router();
  *           type: string
  *         description: The content slug
  *       - in: path
+ *         name: type
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: The content type
+ *       - in: path
  *         name: tags
  *         required: false
  *         schema:
@@ -36,7 +42,9 @@ const router = express.Router();
  *             type: string
  *     responses:
  *       200:
- *         description: A single content item.
+ *         description: Content item(s) mathcing the specified query.
+ *       404:
+ *         description: No content specified by the query is found.
  *       404:
  *         description: A content entry with the slug does not exists.
  */
@@ -95,7 +103,7 @@ router.get('/content', getContent);
  *       201:
  *         description: Content created
  *       400:
- *         description: Invalid body.
+ *         description: Body request missing either a title, slug, or markdown.
  */
 router.post(
     '/content',
@@ -156,11 +164,11 @@ router.post(
  *                 format: binary
  *     responses:
  *       200:
- *         description: Content updated
+ *         description: Content updated.
  *       404:
  *         description: Content with the specified slug does not exist.
  *       500:
- *         description: Error updating content
+ *         description: Error updating content.
  */
 router.put(
     '/content/:slug',
