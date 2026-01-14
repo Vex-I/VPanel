@@ -32,6 +32,6 @@ export const authenticateReadToken = async (req, res, next) => {
         }
         next();
     } catch (err) {
-        res.status(401).json({message: "Fatal server error", error: err.message})
+        res.status(500).json({message: "Fatal server error", error: err.message})
     }
 }
