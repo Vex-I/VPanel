@@ -1,7 +1,9 @@
-import { verifyToken } from "../services/jwt.js";
+import { verifyToken } from "../services/token.js";
+import ReadToken from "../models/readToken.js"
+import { hashPassword } from '../services/hashing.js';
 
-export const authenticate = (req, res, next) => {
-    const authHeader = req.headers["authorization"];
+export const authenticateAdminToken = (req, res, next) => {
+    const authHeader = req.headers["admintoken"];
     if (!authHeader)
         return res.status(401).json({ message: "No token provided" });
 
@@ -18,3 +20,18 @@ export const authenticate = (req, res, next) => {
         res.status(401).json({ message: "Invalid or expired token" });
     }
 };
+
+export const authenticateReadToken = async (req, res, next) => {
+    const authHeader = hashPassword(req.headers["readtoken"]);
+    if (!authHeader) {
+        return res.status(401).json({ message: "No token provided" });
+    }
+    try {
+        if(!(await ReadToken.find({token: authHeader}))) {
+            throw new Error();
+        }
+        next();
+    } catch (err) {
+        res.status(401).json({message: "Invalid Read Token"})
+    }
+}

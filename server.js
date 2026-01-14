@@ -4,14 +4,16 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import contentRoutes from './routes/contentRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 import { swaggerUi, specs } from './swagger.js';
+import { authenticateReadToken, authenticateAdminToken } from './middlewares/authMiddleware.js'
 
 
 dotenv.config();
 const app = express();
 
-const public_URL = process.env.PUBLIC_URI ? JSON.parse(process.env.PUBLIC_URI) : " ";
-const admin_URL = process.env.ADMIN_URI ? JSON.parse(process.env.ADMIN_URI) : " ";
+const public_URL = process.env.PUBLIC_URI ? JSON.parse(process.env.PUBLIC_URI) : "*";
+const admin_URL = process.env.ADMIN_URI ? JSON.parse(process.env.ADMIN_URI) : "*";
 
 console.log("whitelisted read URLs:", public_URL);
 console.log("whitelisted admin URLs:", admin_URL);
@@ -29,6 +31,9 @@ const admin = cors({
 //Middleware to parse JSON
 app.use(express.json());
 
+app.use(publicAccess);
+app.use(admin);
+
 //Docs
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
@@ -43,6 +48,6 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 app.get('/', (req, res) => {res.send("API is running :)")})
-app.use('/api/auth', admin, authRoutes);
-app.use('/api/', publicAccess, contentRoutes);
-app.use('/api/', admin, contentRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/auth', authenticateAdminToken, adminRoutes);
+app.use('/api/', authenticateReadToken, contentRoutes);

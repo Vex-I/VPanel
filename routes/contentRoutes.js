@@ -9,7 +9,7 @@ import {
 
 import upload from '../middlewares/upload.js';
 import Parse from '../middlewares/Parse.js';
-import { authenticate } from '../middlewares/authMiddleware.js'
+import { authenticateAdminToken } from '../middlewares/authMiddleware.js'
 
 const router = express.Router();
 
@@ -60,11 +60,11 @@ router.get('/content', getContent);
  *       - Authentication required
  *     parameters:
  *       - in: header
- *         name: authorization
+ *         name: adminToken
  *         required: true
  *         schema: 
  *           type: string
- *         description: authorization token
+ *         description: admin token
  *     requestBody:
  *       required: true
  *       content:
@@ -107,7 +107,7 @@ router.get('/content', getContent);
  */
 router.post(
     '/content',
-    authenticate,
+    authenticateAdminToken,
     upload.fields([{ name: 'markdown', maxCount: 1 }]),
     Parse,
     createContent
@@ -123,11 +123,11 @@ router.post(
  *       - Authentication required
  *     parameters:
  *       - in: header
- *         name: authorization
+ *         name: adminToken 
  *         required: true
  *         schema: 
  *           type: string
- *         description: authorization token
+ *         description: admin token
  *     requestBody:
  *       required: true
  *       content:
@@ -172,7 +172,7 @@ router.post(
  */
 router.put(
     '/content/:slug',
-    authenticate,
+    authenticateAdminToken,
     upload.fields([{ name: 'markdown', maxCount: 1 }]),
     Parse,
     updateContent
@@ -194,11 +194,11 @@ router.put(
  *           type: string
  *         description: The content slug
  *       - in: header
- *         name: authorization
+ *         name: adminToken
  *         required: true
  *         schema:
  *           type: string
- *         description: authorization token
+ *         description: JWT admin token 
  *     responses:
  *       200:
  *         description: Content deleted
@@ -207,7 +207,7 @@ router.put(
  *       500:
  *         description: Error deleting content
  */
-router.delete('/content/:slug', authenticate, deleteContent);
+router.delete('/content/:slug', authenticateAdminToken, deleteContent);
 
 router.patch('/content/:slug', incrementRead);
 
