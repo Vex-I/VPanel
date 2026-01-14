@@ -1,7 +1,7 @@
 import User from '../models/user.js';
 import ReadToken from '../models/readToken.js';
 import { hashPassword, comparePassword } from "../services/hashing.js";
-import { generateToken, generateReadKey } from "../services/token.js";
+import { generateToken, generateReadKey, hashToken } from "../services/token.js";
 
 export const register = async (req, res) => {
     try {
@@ -44,7 +44,7 @@ export const login = async (req, res) => {
 export const generateReadToken = async (req,res) => {
     try {
         const key = generateReadKey();
-        const hashedKey = hashPassword(key);
+        const hashedKey = await hashToken(key);
         const newToken = new ReadToken({readToken: hashedKey}); 
         await newToken.save();
         res.status(200).json({message:"Token Generated", token: key})
@@ -56,8 +56,8 @@ export const generateReadToken = async (req,res) => {
 export const invalidateReadToken = async (req, res) => {
     try {
         const { readToken } = req.body;
-        const hashedKey = hashPassword(readToken);
-        await ReadToken.findOneAndDelete({readToken});
+        const hashedKey = hashToken(readToken);
+        await ReadToken.findOneAndDelete({hashedKey});
         res.status(200).json({message:"Token successfully invalidated."});
     } catch(err) {
         res.status(500).json({message:err});

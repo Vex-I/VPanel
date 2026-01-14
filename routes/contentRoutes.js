@@ -45,8 +45,6 @@ const router = express.Router();
  *         description: Content item(s) mathcing the specified query.
  *       404:
  *         description: No content specified by the query is found.
- *       404:
- *         description: A content entry with the slug does not exists.
  */
 router.get('/content', getContent);
 

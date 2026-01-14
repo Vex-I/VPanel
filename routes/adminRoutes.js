@@ -30,7 +30,7 @@ router.get('/token', generateReadToken);
 /**
  * @swagger
  * /auth/token/:
- *   get:
+ *   delete:
  *     summary: Invalidate a read token.
  *     tags:
  *       - Authentication required
