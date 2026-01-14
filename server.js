@@ -9,13 +9,30 @@ import { swaggerUi, specs } from './swagger.js';
 
 dotenv.config();
 const app = express();
-app.use(cors());
+
+const public_URL = process.env.PUBLIC_URI ? JSON.parse(process.env.PUBLIC_URI) : " ";
+const admin_URL = process.env.ADMIN_URI ? JSON.parse(process.env.ADMIN_URI) : " ";
+
+console.log("whitelisted read URLs:", public_URL);
+console.log("whitelisted admin URLs:", admin_URL);
+
+const publicAccess = cors({
+  origin: public_URL,
+  methods: ["GET", "PATCH"],
+});
+
+const admin = cors({
+  origin: admin_URL,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+});
 
 //Middleware to parse JSON
 app.use(express.json());
 
 //Docs
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+
+//MONGODB log
 console.log("MONGO_URI:", process.env.MONGO_URI?.replace(/:.+@/, ":<hidden>@"));
 
 mongoose.connect(process.env.MONGO_URI)
@@ -26,5 +43,6 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 app.get('/', (req, res) => {res.send("API is running :)")})
-app.use('/api/auth', authRoutes);
-app.use('/api/', contentRoutes);
+app.use('/api/auth', admin, authRoutes);
+app.use('/api/', publicAccess, contentRoutes);
+app.use('/api/', admin, contentRoutes);
