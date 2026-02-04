@@ -2,7 +2,8 @@ import Content from "../models/content.js";
 
 export const getContent = async (req, res) => {
     try {
-        const {tags, slug, type, } = req.query;
+        const {tags, slug, type } = req.query;
+
         if(slug) {
             const content = await Content.find({slug: slug})
             res.status(200).json(content)
@@ -28,32 +29,58 @@ export const getContent = async (req, res) => {
 }
 
 export const createContent= async (req, res) => {
-    const {title, type, slug, excerpt, image, markdown, tags} = req.body;
-
+    const {title, hasAPage, link, type, slug, excerpt, shortExcerpt, image, markdown, tags} = req.body;
     try {
-        if(!title || !slug || !markdown) {
-            return res.status(400).json({ message: "Title, slug, and markdown are required", 
-                input: { title, slug, markdown}
-            });
-        }
-        const newContent = new Content({ title, type, slug, excerpt, image, markdown, tags });
+        const newContent = new Content({ 
+            title,
+            hasAPage,
+            link,
+            type,
+            slug,
+            excerpt,
+            shortExcerpt,
+            image,
+            markdown,
+            tags
+        });
         await newContent.save();
         res.status(201).json(newContent);
     } catch (error) {
         res.status(500).json({ message: "Error creating project",
-            error,
-            input: { title, slug, markdown},
+            error: {
+                name: error.name,
+                message: error.message,
+                stack: error.stack,
+            },
+            input: req.body,
          });
     }
 }
 
 export const updateContent = async (req, res) => {
-    const { title, type, slug, excerpt, image, markdown, tags} = req.body;
-
     try {
+        const updates = {};
+        for (const field of Object.keys(Content.schema.paths)) {
+
+            for (const field of Object.keys(Content.schema.paths)) {
+            if (req.body[field] !== null) {
+                updates[field] = req.body[field];
+            }
+        }
+
         const project = await Content.findOneAndUpdate(
-            req.params.slug,
-            { title, type, slug, excerpt, image, markdown, tags },
+            {slug: req.params.slug},
+            { $set: updates },
+            { new: true, runValidators: true }
+        );
+            if (req.body[field] !== undefined) {
+                updates[field] = req.body[field];
+            }
+        }
+
+        const project = await Content.findOneAndUpdate(
+            {slug: req.params.slug},
+            { $set: updates },
             { new: true, runValidators: true }
         );
 
@@ -82,6 +109,7 @@ export const incrementRead = async (req, res) => {
 
 export const deleteContent= async (req, res) => {
     try {
+        if(!slug) { return res.status(400).json({message: "No slug specified"})}
         const project = await Content.findOneAndDelete(req.params.slug);
 
         if (!project) {

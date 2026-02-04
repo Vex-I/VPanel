@@ -17,10 +17,9 @@ const contentSchema = new mongoose.Schema({
     markdown: { type: String, required: false },
     readTime: {type: String, required: false},
     tags: [Tag],
-    //Engangement
     reader: {type: Number},
-}, { timestamps: true });
+}, { timestamps: true }, {strict: true});
 
-const Content= mongoose.model('Content', contentSchema);
+const Content = mongoose.model('Content', contentSchema);
 
 export default Content;

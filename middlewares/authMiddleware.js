@@ -2,14 +2,14 @@ import { verifyToken, hashToken } from "../services/token.js";
 import ReadToken from "../models/readToken.js"
 
 export const authenticateAdminToken = (req, res, next) => {
-    const authHeader = req.headers["admintoken"];
-    if (!authHeader)
-        return res.status(401).json({ message: "No token provided" });
-
-    const token = authHeader.split(".")[1];
-    if (!token) return res.status(401).json({ message: "Malformed token" });
-
     try {
+        const authHeader = req.headers["admintoken"];
+        if (!authHeader)
+            return res.status(401).json({ message: "No token provided" });
+
+        const token = authHeader.split(".")[1];
+        if (!token) return res.status(401).json({ message: "Malformed token" });
+
         const decoded = verifyToken(authHeader);
 
         req.user = decoded;
@@ -21,11 +21,11 @@ export const authenticateAdminToken = (req, res, next) => {
 };
 
 export const authenticateReadToken = async (req, res, next) => {
-    const authHeader = await hashToken(req.headers["readtoken"]);
-    if (!authHeader) {
-        return res.status(401).json({ message: "No token provided" });
-    }
     try {
+        const authHeader = await hashToken(req.headers["readtoken"]);
+        if (!authHeader) {
+            return res.status(401).json({ message: "No token provided" });
+        }
         const token = await ReadToken.findOne({readToken: authHeader});
         if(!token) {
             return res.status(401).json({ message: "ReadToken is Invalid" });

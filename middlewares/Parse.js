@@ -1,30 +1,46 @@
-
 const Parse = (req, res, next) => {
     // Markdown --> String
-    if (!req.files?.markdown?.[0]) {
-        return res.status(400).json({ message: 'Markdown file is required' });
+    const markdownFile = req.files?.markdown?.[0];
+    if (markdownFile?.buffer) {
+        req.body.markdown = markdownFile.buffer.toString('utf-8');
+    } else {
+        req.body.markdown = ""; 
     }
-    const file = req.files.markdown[0];
 
-    req.body.markdown = file.buffer.toString('utf-8');
-
-    //JSON Input for tag ---> Tag object
+    // JSON Input for tags --> Tag object
     let tags = req.body.tags;
-    if(tags) {
+    if (tags != null && typeof tags === "string") { 
         try {
-            tags = JSON.parse(tags);
-            req.body.tags = tags;
+            req.body.tags = JSON.parse(tags);
         } catch (err) {
             return res.status(400).json({
                 message: 'Invalid tags format. Must be valid JSON.',
-                example: [
-                    { name: 'backend', color: 'blue' }
-                ]
+                tags: req.body.tags,
+                example: [{ name: 'backend', color: 'blue' }]
             });
-        } 
+        }
+    } else if (tags == null) {
+        req.body.tags = []; 
+    }
+
+    // Boolean parsing
+    let hasPage = req.body.hasAPage;
+    if (hasPage != null) {
+        if (typeof hasPage === "boolean") {
+            // already valid
+        } else if (hasPage === "true" || hasPage === "false") {
+            req.body.hasAPage = hasPage === "true";
+        } else {
+            return res.status(400).json({
+                message: 'hasAPage field invalid. Must be either boolean or "true"/"false".',
+            });
+        }
+    } else {
+        req.body.hasAPage = false; 
     }
 
     next();
+
 };
 
 export default Parse;
