@@ -191,7 +191,7 @@ router.post(
  *         description: Error updating content.
  */
 router.put(
-    '/content/:slug',
+    '/content',
     authenticateAdminToken,
     upload.fields([{ name: 'markdown', maxCount: 1 }]),
     Parse,
@@ -227,6 +227,6 @@ router.put(
  *       500:
  *         description: Error deleting content
  */
-router.delete('/content/:slug', authenticateAdminToken, deleteContent);
+router.delete('/content', authenticateAdminToken, deleteContent);
 
 export default router;
