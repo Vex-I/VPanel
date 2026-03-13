@@ -41,8 +41,8 @@ const router = express.Router();
  *       404:
  *         description: No content specified by the query is found.
  */
-router.get('/content', getContent);
+router.get('/', getContent);
 
-router.patch('/content/:slug', incrementRead);
+router.patch('/:slug', incrementRead);
 
 export default router;

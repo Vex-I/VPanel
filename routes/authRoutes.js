@@ -1,5 +1,6 @@
 import express from 'express';
 import { register, login } from '../controllers/authController.js';
+import { verifyAdminAccess } from '../middlewares/authMiddleware.js'
 
 const router = express.Router();
 
@@ -30,7 +31,7 @@ const router = express.Router();
  *       400:
  *         description: A user of that name already exist.
  */
-router.post("/register", register);
+router.post("/register", verifyAdminAccess, register);
 
 /**
  * @swagger

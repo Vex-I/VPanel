@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 const tokenSchema = new mongoose.Schema({
+    issuingUser: {type: String, required: true},
     readToken: { type: String, required: true, unique: true },
 }, {timestamps: true });
 

@@ -3,52 +3,57 @@ import {
     createContent,
     updateContent,
     deleteContent,
+    rerenderMarkdown,
 } from '../controllers/contentController.js';
-import validateContent from '../middlewares/validator.js';
 import { generateReadToken, invalidateReadToken} from '../controllers/authController.js'
 import upload from '../middlewares/upload.js';
 import Parse from '../middlewares/Parse.js';
-import { authenticateAdminToken } from '../middlewares/authMiddleware.js'
+import { 
+    authenticateAdminToken,
+    verifyAdminAccess,
+    verifyManageAccess,
+    verifyEditAccess 
+} from '../middlewares/authMiddleware.js'
 
 const router = express.Router();
 
 /**
  * @swagger
- * /auth/token/:
+ * api/auth/token/:
  *   get:
  *     summary: Generate a long-lived read token.
  *     tags:
  *       - Authentication required
  *     parameters:
  *       - in: header
- *         name: adminToken
+ *         name: authorization
  *         required: true
  *         schema:
  *           type: string
- *         description: JWT admin token 
+ *         description: JWT token 
  *     responses:
  *       200:
  *         description: Generated token
  *       500:
  *         description: Error generating token
  */
-router.get('/token', generateReadToken);
+router.get('/token', authenticateAdminToken, verifyAdminAccess, generateReadToken);
 
 /**
  * @swagger
- * /auth/token/:
+ * api/auth/token/:
  *   delete:
  *     summary: Invalidate a read token.
  *     tags:
  *       - Authentication required
  *     parameters:
  *       - in: header
- *         name: adminToken
+ *         name: authorization
  *         required: true
  *         schema:
  *           type: string
- *         description: JWT admin token 
- *       - in: header
+ *         description: JWT token 
+ *       - in: body
  *         name: readToken
  *         required: true
  *         schema:
@@ -60,7 +65,7 @@ router.get('/token', generateReadToken);
  *       500:
  *         description: Error invalidating token
  */
-router.delete('/token', invalidateReadToken);
+router.delete('/token', authenticateAdminToken, verifyAdminAccess, invalidateReadToken);
 
 /**
  * @swagger
@@ -71,12 +76,19 @@ router.delete('/token', invalidateReadToken);
  *       - Content
  *       - Authentication required
  *     parameters:
+ *       - in: header 
+ *         name: method 
+ *         required: false 
+ *         schema: 
+ *           type: string 
+ *         description: Rendering method. Leave empty for default. set to
+ *           'obsidian' to parse wikilinks
  *       - in: header
- *         name: adminToken
+ *         name: authorization
  *         required: true
  *         schema: 
  *           type: string
- *         description: admin token
+ *         description: The JWT token
  *     requestBody:
  *       required: true
  *       content:
@@ -125,9 +137,9 @@ router.delete('/token', invalidateReadToken);
 router.post(
     '/content',
     authenticateAdminToken,
+    verifyManageAccess,
     upload.fields([{ name: 'markdown', maxCount: 1 }]),
     Parse,
-    validateContent,
     createContent
 );
 
@@ -140,12 +152,19 @@ router.post(
  *       - Content
  *       - Authentication required
  *     parameters:
+ *       - in: header 
+ *         name: method 
+ *         required: false 
+ *         schema: 
+ *           type: string 
+ *         description: Rendering method. Leave empty for default. set to
+ *           'obsidian' to parse wikilinks
  *       - in: header
- *         name: adminToken 
+ *         name: authorization
  *         required: true
  *         schema: 
  *           type: string
- *         description: admin token
+ *         description: The JWT token
  *     requestBody:
  *       required: true
  *       content:
@@ -193,6 +212,7 @@ router.post(
 router.put(
     '/content',
     authenticateAdminToken,
+    verifyEditAccess,    
     upload.fields([{ name: 'markdown', maxCount: 1 }]),
     Parse,
     updateContent
@@ -200,7 +220,7 @@ router.put(
 
 /**
  * @swagger
- * /api/auth/content/{slug}:
+ * /api/auth/content:
  *   delete:
  *     summary: Delete a content
  *     tags:
@@ -214,7 +234,7 @@ router.put(
  *           type: string
  *         description: The content slug
  *       - in: header
- *         name: adminToken
+ *         name: authorization
  *         required: true
  *         schema:
  *           type: string
@@ -227,6 +247,46 @@ router.put(
  *       500:
  *         description: Error deleting content
  */
-router.delete('/content', authenticateAdminToken, deleteContent);
+router.delete('/content', authenticateAdminToken, verifyManageAccess, deleteContent);
+
+/**
+ * @swagger
+ * /api/auth/content/rerender:
+ *   post:
+ *     summary: Re-render a markdown of an content entry.
+ *     tags:
+ *       - Content
+ *       - Authentication required
+ *     parameters:
+ *       - in: header 
+ *         name: method 
+ *         required: false 
+ *         schema: 
+ *           type: string 
+ *         description: Rendering method. Leave empty for default. set to
+ *           'obsidian' to parse wikilinks
+ *       - in: path
+ *         name: slug
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The content slug
+ *       - in: header
+ *         name: authorization
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: JWT admin token 
+ *     responses:
+ *       200:
+ *         description: Content rerendered
+ *       400:
+ *         description: Content does not have any markdown.
+ *       404:
+ *         description: Content with the specified slug does not exist.
+ *       500:
+ *         description: Error rerendering content
+ */
+router.post('/content/rerender', authenticateAdminToken, verifyEditAccess, rerenderMarkdown); 
 
 export default router;

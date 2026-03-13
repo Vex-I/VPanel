@@ -1,18 +1,22 @@
 import Content from "../models/content.js";
+import { renderMarkdown, wikilinkRender } from '../services/renderMarkdown.js';
 
 export const getContent = async (req, res) => {
     try {
         const {tags, slug, type } = req.query;
 
         if(slug) {
-            const content = await Content.find({slug: slug})
-            res.status(200).json(content)
+            const content = await Content.find({slug: slug});
+            res.status(200).json(content);
+
         } else {
             const filter = {}
+
             if(tags) {
                 const tagArray = Array.isArray(tags) ? tags : [tags];
                 filter['tags.name' ] = { $in: tagArray };
             }
+
             if (type) filter.type = type;
 
             const content = await Content.find(filter);
@@ -29,11 +33,12 @@ export const getContent = async (req, res) => {
 }
 
 export const createContent= async (req, res) => {
-    const {title, hasAPage, link, type, slug, excerpt, shortExcerpt, image, markdown, tags} = req.body;
+    const {title, hasAPage, published, link, type, slug, excerpt, shortExcerpt, image, markdown, html, tags} = req.body;
     try {
         const newContent = new Content({ 
             title,
             hasAPage,
+            published, 
             link,
             type,
             slug,
@@ -41,6 +46,7 @@ export const createContent= async (req, res) => {
             shortExcerpt,
             image,
             markdown,
+            html,
             tags
         });
         await newContent.save();
@@ -61,25 +67,13 @@ export const updateContent = async (req, res) => {
     try {
         const updates = {};
         for (const field of Object.keys(Content.schema.paths)) {
-
-            for (const field of Object.keys(Content.schema.paths)) {
             if (req.body[field] !== null) {
                 updates[field] = req.body[field];
             }
         }
 
         const project = await Content.findOneAndUpdate(
-            {slug: req.params.slug},
-            { $set: updates },
-            { new: true, runValidators: true }
-        );
-            if (req.body[field] !== undefined) {
-                updates[field] = req.body[field];
-            }
-        }
-
-        const project = await Content.findOneAndUpdate(
-            {slug: req.params.slug},
+            {slug: req.body.slug},
             { $set: updates },
             { new: true, runValidators: true }
         );
@@ -109,8 +103,9 @@ export const incrementRead = async (req, res) => {
 
 export const deleteContent= async (req, res) => {
     try {
+        const { slug } = req.query;
         if(!slug) { return res.status(400).json({message: "No slug specified"})}
-        const project = await Content.findOneAndDelete(req.params.slug);
+        const project = await Content.findOneAndDelete({ slug });
 
         if (!project) {
             return res.status(404).json({ message: "Project not found" });
@@ -119,6 +114,33 @@ export const deleteContent= async (req, res) => {
         res.status(200).json({ message: "Project deleted successfully" });
 
     } catch (error) {
-        res.status(500).json({ message: "Error deleting project", error });
+        res.status(500).json({ message: "Error deleting project", error: error.message });
     } 
+}
+
+export const rerenderMarkdown = async (req,res) => {
+    try {
+        const project = await Content.findOne(req.params.slug); 
+        if(!project) {
+            res.status(404).json({ message: "No content with the specified slug exists"})
+        }
+
+        if(!project.markdown) {
+            res.status(400).json({ message: "The specified Content entry does not have any markdown file associated with it" })
+        }
+
+        const markdownString = project.markdown; 
+
+        if(req.headers["method"] = "obsidian") {
+            const parsed = await wikilinkRender(markdownString);    
+            project.html = parsed;
+        } else {
+            project.html = await renderMarkdown(markdownString);
+        }
+        await project.save()
+        res.status(200).json({message: "Successfully re-rendered markdown"});
+    } catch (err) {
+        res.status(500).json({ message: "Error deleting project", error });
+    }
+
 }

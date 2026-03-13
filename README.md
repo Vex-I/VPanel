@@ -1,18 +1,21 @@
 # VPanel
-The backend for my personal website, featuring a basic CMS and JWT-authentication. Uses MongoDB for the database.
+The headless CMS for my personal website, built using Express. Uses MongoDB as a database.
 
 ## Motivation
-I wanted a simple API that allows me to manage content from anywhere and share certain privileges in 
-doing so.
+I wanted a simple CMS that allows me to shove whatever it is I need to display.
+It neede to have basic collaboration features, as well as being flexible enough
+for me to fit a wide range of contents there.
 
 ## Features
 - Simple CMS, dividing content into types, with an associated outside link or markdown and custom tags for each one.
-- JWT-authentication for specific routes associated with modifying the database.
-- Long-lived read token for displaying content.
+- JWT-authentication for specific routes associated with modifying content
+  entries.
+- Long-lived read token for displaying content from an external tool.
+- Obsidian wikilinks parser.
 
 ## Setup
 
-setup the environment variables as such:
+Setup the environment variables as such:
 
 ```
 MONGO_URI= "<YOUR-MONGODB-URI>"
@@ -27,4 +30,31 @@ then simply run `npm run start` to run localy.
 
 All the available routes and their usage is documented on the `/api-docs` route.
 
-Main website is deployed at [vex-i.pages.dev](vex-i.pages.dev). Feel free to fork this as neccessary.
+Each content is stored with the following schema: 
+
+```js
+const contentSchema = new mongoose.Schema({
+    title: { type: String, required: false, default: 'Test post for Test People'},
+    type: {type: String, required: true},
+    slug: { type: String, required: true, unique: true },
+    hasAPage: { type: Boolean, required: false, default: false},
+    published: { type: Boolean, required: false, default: false},
+    reader: {type: Number, required: false, default: 0},
+    tags: [Tag],
+    link: {type: String, required: false},
+    excerpt: { type: String, required: false },
+    shortExcerpt: {type: String, required: false},
+    image: { type:String, required: false },
+    markdown: { type: String, required: false },
+    html: { type: String, required: false},
+    readTime: {type: String, required: false},
+}, { timestamps: true }, {strict: true});
+```
+
+Each content would ideally have a markdown that goes along with it. This
+markdown is then parsed into HTML through `remark`. When parsing the markdwon,
+you have the option to parse wiki links format into the standard markdown
+hyperlink. In practice, this transforms `[Some Page|this page]` into
+`[some-page](this page)`. This is especially made with Obsidian in mind.
+
+Main website is deployed [https://www.nawwafsudi.me](here). Feel free to fork this as neccessary.

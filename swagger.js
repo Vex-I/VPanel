@@ -7,11 +7,11 @@ const options = {
     info: {
       title: "VPanel API",
       version: "1.0.0",
-      description: "API documentation for VPanel, a simple blog backend.",
+      description: "API documentation for VPanel, an all-purpose CMS.",
     },
     servers: [
       {
-        url: "http://localhost:5000", // update to deployed url later.
+        url: "http://localhost:8000", // update to deployed url later.
       },
     ],
   },

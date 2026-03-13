@@ -28,13 +28,13 @@ export const login = async (req, res) => {
         const user = await User.findOne({ username });
 
         if (!user)
-            return res.status(400).json({ message: "Invalid email or password" });
+            return res.status(400).json({ message: "Invalid username or password" });
 
         const isMatch = await comparePassword(password, user.password);
         if (!isMatch)
-            return res.status(400).json({ message: "Invalid email or password" });
+            return res.status(400).json({ message: "Invalid username or password" });
 
-        const token = generateToken({ id: user._id, email: user.email });
+        const token = generateToken({ username: user.username, role: user.role });
         res.status(200).json({ message: "Login successful!", token: token });
     } catch (err) {
         res.status(500).json({ error: err.message });
