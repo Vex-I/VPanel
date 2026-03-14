@@ -1,6 +1,7 @@
 import express from 'express';
 import {
     createContent,
+    getAllContent,
     updateContent,
     deleteContent,
     rerenderMarkdown,
@@ -66,6 +67,43 @@ router.get('/token', authenticateAdminToken, verifyAdminAccess, generateReadToke
  *         description: Error invalidating token
  */
 router.delete('/token', authenticateAdminToken, verifyAdminAccess, invalidateReadToken);
+
+/**
+ * @swagger
+ * /api/auth/content:
+ *   get:
+ *     summary: Retrieve all contents that matches the parameter, including
+ *       unpublished ones
+ *     tags:
+ *       - Content
+ *       - Authentication required
+ *     parameters:
+ *       - in: path
+ *         name: slug
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: The content slug
+ *       - in: path
+ *         name: type
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: The content type
+ *       - in: path
+ *         name: tags
+ *         required: false
+ *         schema:
+ *           type: array
+ *           items:
+ *             type: string
+ *     responses:
+ *       200:
+ *         description: Content item(s) mathcing the specified query.
+ *       404:
+ *         description: No content specified by the query is found.
+ */
+router.get('/content', getAllContent);
 
 /**
  * @swagger

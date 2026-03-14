@@ -6,6 +6,37 @@ export const getContent = async (req, res) => {
         const {tags, slug, type } = req.query;
 
         if(slug) {
+            const content = await Content.find({slug: slug, published: true});
+            res.status(200).json(content);
+
+        } else {
+            const filter = {published: true}
+
+            if(tags) {
+                const tagArray = Array.isArray(tags) ? tags : [tags];
+                filter['tags.name' ] = { $in: tagArray };
+            }
+
+            if (type) filter.type = type;
+
+            const content = await Content.find(filter);
+            if (content.length == 0) {
+                return res.status(404).json({message:"No content found."})
+            } else {
+                return res.status(200).json(content);
+            }
+        }
+
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching content", error });
+    }
+}
+
+export const getAllContent = async (req, res) => {
+    try {
+        const {tags, slug, type } = req.query;
+
+        if(slug) {
             const content = await Content.find({slug: slug});
             res.status(200).json(content);
 

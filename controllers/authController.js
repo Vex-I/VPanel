@@ -45,7 +45,7 @@ export const generateReadToken = async (req,res) => {
     try {
         const key = generateReadKey();
         const hashedKey = await hashToken(key);
-        const newToken = new ReadToken({readToken: hashedKey}); 
+        const newToken = new ReadToken({readToken: hashedKey, issuingUser: req.user.username}); 
         await newToken.save();
         res.status(200).json({message:"Token Generated", token: key})
     } catch(err) {
