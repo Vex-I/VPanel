@@ -57,4 +57,4 @@ you have the option to parse wiki links format into the standard markdown
 hyperlink. In practice, this transforms `[Some Page|this page]` into
 `[some-page](this page)`. This is especially made with Obsidian in mind.
 
-Main website is deployed [https://www.nawwafsudi.me](here). Feel free to fork this as neccessary.
+Main website is deployed [here](https://www.nawwafsudi.me). Feel free to fork this as neccessary.
